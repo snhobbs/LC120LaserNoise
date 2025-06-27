@@ -9,6 +9,11 @@ import numpy as np
 log_ = logging.getLogger("lc120_noise")
 
 @dataclass
+class PhotorecieverConfig:
+    bandwidth: float
+    transimpedance: float
+
+@dataclass
 class LaserConfig:
     baudrate: int = 115200
 
@@ -48,6 +53,7 @@ class Config:
     laser: LaserConfig
     oscilliscope: OscilliscopeConfig
     measurement: MeasurementConfig
+    photoreceiver: PhotorecieverConfig
 
 def load_config(path: str) -> Config:
     with open(path, 'rb') as f:
@@ -57,6 +63,7 @@ def load_config(path: str) -> Config:
         laser=LaserConfig(**raw["laser"]),
         oscilliscope=OscilliscopeConfig(**raw['oscilliscope']),
         measurement=MeasurementConfig(**raw['measurement']),
+        photoreceiver=PhotorecieverConfig(**raw['photoreceiver'])
     )
 
 @dataclass
@@ -141,9 +148,9 @@ class RunFileStructure:
 
     def write_scope_trace(self, n, trace, header):
         path = self.get_scope_trace_path(n)
-        log_.debug(f"Writing {path}")
+        log_.debug("Writing %s", str(path))
         if path.exists():
-            log_.warning(f"Overwriting {path}")
+            log_.warning("Overwriting %s", str(path))
         with open(path, 'w') as f:
             for key, value in header.items():
                 f.write(f"#{key};{value}\n")
@@ -152,7 +159,7 @@ class RunFileStructure:
     def write_laser_state(self, state: dict):
         path = self.laser_state_path
         if path.exists():
-            log_.warning(f"Overwriting {path}")
+            log_.warning("Overwriting %s", str(path))
         with open(path, 'w') as f:
             json.dump(state, f, indent=2)
 

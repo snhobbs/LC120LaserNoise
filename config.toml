@@ -1,6 +1,10 @@
 [laser]
 baudrate = 115200
 
+[photoreceiver]
+transimpedance=1e6
+bandwidth=750e3
+
 [oscilliscope]
 channel=1
 timescale=1e-5

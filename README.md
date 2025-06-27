@@ -37,6 +37,7 @@ The system operates by stepping through a grid of laser operating points:
 
 Since we're looking for **regions of instability** the main output are **2D color density maps** showing the noise for each Current - Temperature setting.
 
+![](random-data-heat-map.svg)
 ---
 
 ## Code Features

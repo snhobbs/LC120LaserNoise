@@ -1,6 +1,6 @@
 import logging
 import time
-from typing import Type, get_type_hints, List
+from typing import List
 from pathlib import Path
 import shutil
 import os
@@ -16,7 +16,8 @@ def get_scope(resource_name):
         scope = g_rm.open_resource(resource_name)
         return scope
     except Exception as e:
-        raise Exception(f"Could not connect to {resource_name}: {e}")
+        msg = f"Could not connect to {resource_name}: {e}"
+        raise Exception(msg)
 
 
 def setup_scope(config: OscilliscopeConfig, scope):
@@ -27,15 +28,19 @@ def setup_scope(config: OscilliscopeConfig, scope):
     scope.read_termination = '\n'
 
     ch = config.channel
-    scope.write(f"CHAN{ch}:COUPLING {config.coupling}")
+    cmd = f"CHAN{ch}:COUPLING {config.coupling}"
+    scope.write(cmd)
+    log_.info(cmd)
 
     timebase = config.timescale
-    scope.write(f":TIM:SCAL {timebase}")
-    log_.info(f"Timebase scale set to {timebase} s/div")
+    cmd = f":TIM:SCAL {timebase}"
+    scope.write(cmd)
+    log_.info(cmd)
 
     scale = config.scale
-    scope.write(f"CHAN{ch}:SCAL {scale}")
-    log_.info(f"CHAN{ch} volts/div set to {scale}")
+    cmd = f"CHAN{ch}:SCAL {scale}"
+    scope.write(cmd)
+    log_.info(cmd)
 
     scope.write(f":WAV:SOUR CHAN{ch}")         # Source channel
     scope.write(":WAV:MODE NORM")          # Normal acquisition mode
@@ -60,7 +65,8 @@ def get_laser(resource_name="/dev/ttyUSB0"):
         dev.read_termination = '\n'
         return dev
     except Exception as e:
-        raise Exception(f"Could not connect to {resource_name}: {e}")
+        msg = f"Could not connect to {resource_name}: {e}"
+        raise Exception(msg)
 
 
 def setup_laser(config: LaserConfig, laser):
@@ -96,15 +102,15 @@ def measurement_loop(config: Config, devices: dict, runs: List[RunFileStructure]
         if last_run is None or last_run.temp != run.temp:
             cmd = f"set_temperature {run.temp}"
             laser.write(cmd)
-            log_.debug(f"Sleeping {mconfig.temp_sleep}")
+            log_.debug("Sleeping %f", mconfig.temp_sleep)
             time.sleep(mconfig.temp_sleep)
             log_.debug(cmd)
 
         if last_run is None or last_run.current != run.current:
-            cmd = f"set_current {run.temp}"
+            cmd = f"set_current {run.current}"
             laser.write(cmd)
             log_.debug(cmd)
-            log_.debug(f"Sleeping {mconfig.current_sleep}")
+            log_.debug("Sleeping %f", mconfig.current_sleep)
             time.sleep(mconfig.current_sleep)
 
         if not run.path.exists():
@@ -142,7 +148,8 @@ def run_measurement(toml: Path, **kwargs):
             raise FileExistsError(msg)
     else:
         os.makedirs(mconfig.run_path.as_posix())
-        log_.info(f"Making run directory {mconfig.run_path}")
+        msg = f"Making run directory {mconfig.run_path}"
+        log_.info(msg)
 
     '''
     Copy the config file into the header of the datarun when created
@@ -158,5 +165,5 @@ def run_measurement(toml: Path, **kwargs):
         return
     else:
         if len(runs) != len(filtered_runs):
-            log_.info(f"Partial data run, running {len(filtered_runs)}/{len(runs)}")
+            log_.info("Partial data run, running %d/%d", len(filtered_runs), len(runs))
         measurement_loop(config, runs=filtered_runs, **kwargs)
