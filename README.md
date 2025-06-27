@@ -9,9 +9,9 @@ This project characterizes the noise performance of diode lasers over drive curr
 The measurement setup includes:
 
 - **LC120 Miniboard**: A compact, low noise, precision laser current driver with integrated TEC control.
-- **LP870 Nanosecond LED Pulser**: A high speed LED source used to characterize the photoreceiver.
-- **QL03 Photoreceiver**: A large area, low-noise photodetector used to sense the optical output.
-- **Siglent SDS1202X-E Oscilloscope**: Acts as the DAQ, reading voltage traces from the QL03 output.
+- [**LP870 Nanosecond LED Pulser**](https://hobbs-eo.com/products/ns-digital-led-pulser): A high speed LED source used to characterize the photoreceiver.
+- [**QL03 Photoreceiver**](https://hobbs-eo.com/products/ql03-photoreceiver): A large area, low-noise photodetector used to sense the optical output.
+- [**Siglent SDS1202X-E Oscilloscope**](https://siglentna.com/product/sds1202x-e/): Acts as the DAQ, reading voltage traces from the QL03 output.
 
 ---
 
