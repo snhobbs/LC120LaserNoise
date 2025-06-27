@@ -1,0 +1,25 @@
+[laser]
+baudrate = 115200
+
+[oscilliscope]
+channel=1
+timescale=1e-5
+scale=0.1
+
+[measurement]
+path = "./data"
+name = "demo"
+continue_on_restart = true
+repetitions = 1
+ntemp = 10
+ncurrent = 100
+temp_sleep = 0
+current_sleep = 0
+temp_min = 0
+temp_max = 35
+temp_step = 1
+current_min = 1e-3
+current_max = 100e-3
+current_step = 1e-3
+measurement_sleep = 10e-3
+
