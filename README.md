@@ -1,6 +1,6 @@
 # LC120LaserNoise
 
-This project characterizes the noise performance of diode lasers over drive current and temperature using the **LC120 Miniboard laser driver** and the **QL03 Photoreceiver**. A 200 MHz scope is used for the data acquisition system (DAQ). The analysis includes noise spectra across varying **laser drive currents** and **thermoelectric cooler (TEC) temperatures**, producing **2D plots** of integrated noise in current-temperature space. We've found that different diode lasers have **regions of instability** where the diode behaves irratically (mode hopping mostly).
+This project characterizes the noise performance of diode lasers over drive current and temperature using the **LC120 Miniboard laser driver** and the **QL03 Photoreceiver**. A 200 MHz scope is used for the data acquisition system (DAQ). The analysis includes noise spectra across varying **laser drive currents** and **thermoelectric cooler (TEC) temperatures**, producing **2D plots** of integrated noise in current-temperature space. We've found that different diode lasers have **regions of instability** where the diode behaves erratically (mode hopping mostly).
 
 ---
 
@@ -46,3 +46,9 @@ Since we're looking for **regions of instability** the main output are **2D colo
 - Easily configurable CLI interface
 - Supports swapping photodetectors (e.g., QL03 vs others)
 - Uses **PyVISA** to control the scope and collect waveforms
+
+
+## Test Setup
+Most diodes are tested using a [ThorLabs LDM21](https://www.thorlabs.com/NewGroupPage9_PF.cfm?ObjectGroup_ID=308) connected using the LC120 Starter Kit Adapter.
+The QL03 is modified to have a transimpedance of 100 (down from 1M).
+Reflections are prevented from getting back into the cavity using a microscope objective slightly off axis. A lens is used to spread the beam over the entire photodiode.
