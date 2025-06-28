@@ -18,13 +18,15 @@ class LaserConfig:
     baudrate: int = 115200
 
 @dataclass
-class OscilliscopeConfig:
+class OscilloscopeConfig:
     channel: int = 1
     timescale: str = "100us"  #  s/div
-    scale: str = "10mV"  #  v/div
+    attenuation: float = 1
+    scale: float = 1  #  V/DIV
     coupling: str = "D1M"
     offset: str = "0"
     averages: int = 1
+    npoints: int = 14000
 
 @dataclass
 class MeasurementConfig:
@@ -51,7 +53,7 @@ class MeasurementConfig:
 @dataclass
 class Config:
     laser: LaserConfig
-    oscilliscope: OscilliscopeConfig
+    oscilloscope: OscilloscopeConfig
     measurement: MeasurementConfig
     photoreceiver: PhotorecieverConfig
 
@@ -59,9 +61,10 @@ def load_config(path: str) -> Config:
     with open(path, 'rb') as f:
         raw = tomllib.load(f)
 
+    print(raw.keys(), 'oscilloscope' in raw.keys())
     return Config(
         laser=LaserConfig(**raw["laser"]),
-        oscilliscope=OscilliscopeConfig(**raw['oscilliscope']),
+        oscilloscope=OscilloscopeConfig(**raw['oscilloscope']),
         measurement=MeasurementConfig(**raw['measurement']),
         photoreceiver=PhotorecieverConfig(**raw['photoreceiver'])
     )

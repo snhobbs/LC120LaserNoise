@@ -5,10 +5,10 @@ baudrate = 115200
 transimpedance=1e6
 bandwidth=750e3
 
-[oscilliscope]
+[oscilloscope]
 channel=1
-timescale=1e-5
-scale=0.1
+timescale="100ns"
+scale="1V"
 
 [measurement]
 path = "./data"
