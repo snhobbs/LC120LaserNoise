@@ -7,6 +7,7 @@ from pathlib import Path
 import click
 import numpy as np
 from .measurement import get_laser, get_scope, run_measurement, Sds1000x_eOscilloscope, Lc120Laser
+import pyvisa
 
 log_ = logging.getLogger("lc120_noise")
 
@@ -39,9 +40,19 @@ scope_reponses = {"*OPC?": lambda: 1,
 def cli():
     pass
 
+try:
+    DEFAULT_SCOPE = list(filter(lambda x: "USB" in x, pyvisa.ResourceManager().list_resources()))[0]
+except IndexError:
+    DEFAULT_SCOPE=None
+
+try:
+    DEFAULT_LASER = list(filter(lambda x: "ttyUSB" in x, pyvisa.ResourceManager().list_resources()))[0]
+except IndexError:
+    DEFAULT_LASER=None
+
 @cli.command()
-@click.option('--scope', 'scope_resource', help="Scope USB resource")
-@click.option('--laser', "laser_resource", help="Laser serial port")
+@click.option('--scope', 'scope_resource', default=DEFAULT_SCOPE, help="Scope USB resource")
+@click.option('--laser', "laser_resource", default=DEFAULT_LASER, help="Laser serial port")
 @click.option('--toml', required=True, help="toml file for setting up the data run")
 @click.option('--debug', default=logging.INFO, type=int, help="Logging level")
 @click.option('--mock', is_flag=True, help="Use mock interfaces for debug")
@@ -53,7 +64,8 @@ def main(scope_resource, laser_resource, toml, debug, mock):
     else:
         if laser_resource or scope_resource is None:
             raise click.ClickException("Set the resource values")
-        laser = get_laser(laser_resource)
+        #laser = get_laser(laser_resource)
+        laser = MockDevice(laser_responses)
         scope = get_scope(scope_resource)
     devices = {"scope": Sds1000x_eOscilloscope(scope), "laser": Lc120Laser(laser)}
     run_measurement(Path(toml), devices=devices)

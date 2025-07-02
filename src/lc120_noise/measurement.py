@@ -24,7 +24,7 @@ class Sds1000x_eOscilloscope:
         scope.timeout = 5000  # ms
         scope.write_termination = '\n'
         scope.read_termination = '\n'
-        scope.chunk_size = 1024*1024*1024
+        scope.chunk_size = 1024*1024
 
         ch = f"C{config.channel}"
 
@@ -34,8 +34,8 @@ class Sds1000x_eOscilloscope:
         if str(config.timescale).upper() not in valid_timedivs:
             raise ValueError("Timediv value invalid")
 
-
         cmds = [
+            f"{ch}:TRACE ON",
             f"{ch}:COUPLING {config.coupling}",
             f"TIME_DIV {config.timescale}",
             f"{ch}:ATTENUATION {config.attenuation}",
@@ -43,11 +43,10 @@ class Sds1000x_eOscilloscope:
             f"BANDWIDTH_LIMIT {ch},ON",
             f"{ch}:OFFSET {config.offset}",
             f"{ch}:SKEW 0",
-            f"{ch}:TRACE ON",
             f"{ch}:VOLT_DIV {config.scale}",
             f"{ch}:INVERTSET OFF",
             "BUZZER OFF",
-            "TRIG_MODE AUTO",  #  There's no force trigger
+            "TRIG_MODE NORM",
             f"TRIG_SELECT EDGE,SR,{ch},HT,TI,OFF,HV,0",
         ]
 
@@ -58,10 +57,23 @@ class Sds1000x_eOscilloscope:
             cmds.append("ACQUIRE_WAY SAMPLING")
 
         for cmd in cmds:
-            scope.write(cmd)
-            while int(scope.query("*OPC?")) != 1:
-                continue
-            log_.info(cmd)
+            resp = scope.write(cmd)
+            log_.info(f"{cmd} -> {resp}")
+
+            while True:
+                scope.write("*CLS")
+                opc = scope.query("*OPC?")
+                scope.write("*CLS")
+                try:
+                    v = int(opc)
+                    if v == 1:
+                        break
+                    log_.warning(f"OPC returned {opc}")
+
+                except ValueError as e:
+                    log_.warning(f"OPC returned {e}")
+                    continue
+
 
     def read_state(self):
         config = self.config
@@ -73,19 +85,22 @@ class Sds1000x_eOscilloscope:
             "SAMPLE_RATE",
             "ACQUIRE_WAY",
             "MEMORY_SIZE",
-            f"SAMPLE_NUM {ch}",
-            "ATTENUATION",
+            #f"SAMPLE_NUM {ch}",
+            f"{ch}:ATTENUATION",
             "BANDWIDTH_LIMIT",
-            "COUPLING",
-            "OFFSET",
-            "SKEW",
+            f"{ch}:COUPLING",
+            f"{ch}:OFFSET",
+            f"{ch}:SKEW",
             f"{ch}:TRACE",
             f"{ch}:VOLT_DIV",
             "TIME_DIV",
             "TRIG_DELAY",
             "TRIG_MODE"]
         for field in fields:
-            state[field] = scope.query(field+'?')
+            resp = scope.query(field+'?')
+            state[field] = resp
+            log_.info(f"{field} -> {resp}")
+
         return state
 
     def take_trace(self):
@@ -93,9 +108,14 @@ class Sds1000x_eOscilloscope:
         CH{n}:WAVEFORM? DAT2 returns
         '''
         scope = self.device
+
+        # Setup trigger
+        scope.write("ARM_ACQUISITION")
+        # Force trigger
         scope.write("ARM_ACQUISITION")
         while True:
-            inr = int(scope.query("INR?"))
+            scope.write("*CLS")
+            inr = int(scope.query("INR?").split(" ")[-1])
             if inr & 0x1:  #  A new signal has been acquired
                 break
             if inr & (1<<3):  # timeout

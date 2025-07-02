@@ -61,7 +61,6 @@ def load_config(path: str) -> Config:
     with open(path, 'rb') as f:
         raw = tomllib.load(f)
 
-    print(raw.keys(), 'oscilloscope' in raw.keys())
     return Config(
         laser=LaserConfig(**raw["laser"]),
         oscilloscope=OscilloscopeConfig(**raw['oscilloscope']),
@@ -157,7 +156,7 @@ class RunFileStructure:
         with open(path, 'w') as f:
             for key, value in header.items():
                 f.write(f"#{key};{value}\n")
-            f.write(",".join(trace))
+            f.write(",".join(map(str, trace)))
 
     def write_laser_state(self, state: dict):
         path = self.laser_state_path
