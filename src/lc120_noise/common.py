@@ -182,7 +182,10 @@ class RunFileStructure:
                     key, value = line.split(';')
                     header[key.strip()[1:]] = value.strip()
                 else:
-                    trace = np.array(line.split(','), dtype=float)
+                    try:
+                        trace = np.array(line.split(','), dtype=float)
+                    except ValueError:
+                        log_.error(f"Corruption in {path}, skipping line")
             return trace, header
 
     def load_scope_traces(self):
