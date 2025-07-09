@@ -34,7 +34,7 @@ scope_reponses = {"*OPC?": lambda: 1,
                   "SAMPLE_RATE?": lambda: "SARA 5.00E+05Sa/s",
                   "C1:WAVEFORM?": lambda: np.array(np.random.rand(1000), dtype=str),
                   "C2:WAVEFORM?": lambda: np.array(np.random.rand(1000), dtype=str),
-                  "INR?": lambda: 1}
+                  "INR?": lambda: "INR 1"}
 
 @click.group()
 def cli():
