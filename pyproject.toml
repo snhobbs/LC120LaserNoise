@@ -27,7 +27,8 @@ dependencies = [
     'click>=7.0',
     'pandas',
     'numpy',
-    'pyvisa'
+    'pyvisa',
+    'pydantic'
 ]
 
 [project.license]

@@ -5,32 +5,29 @@ import json
 import time
 from pathlib import Path
 import numpy as np
+from pydantic import BaseModel
 
 log_ = logging.getLogger("lc120_noise")
 
-@dataclass
-class PhotorecieverConfig:
+class PhotorecieverConfig(BaseModel):
     bandwidth: float
     transimpedance: float
 
-@dataclass
-class LaserConfig:
+class LaserConfig(BaseModel):
     baudrate: int = 115200
 
-@dataclass
-class OscilloscopeConfig:
+class OscilloscopeConfig(BaseModel):
     channel: int = 1
     timescale: str = "100us"  #  s/div
     attenuation: float = 1
-    scale: float = 1  #  V/DIV
+    scale: str = "1V"  #  V/DIV
     coupling: str = "D1M"
-    offset: str = "0"
+    offset: str = "0V"
     averages: int = 1
     npoints: int = 14000
 
-@dataclass
-class MeasurementConfig:
-    path: str
+class MeasurementConfig(BaseModel):
+    path: Path
     name: str = "untitled"
     continue_on_restart: bool = False
     repetitions: int = 1
@@ -48,10 +45,9 @@ class MeasurementConfig:
 
     @property
     def run_path(self):
-        return Path(self.path) / self.name
+        return (Path(self.path) / self.name).absolute()
 
-@dataclass
-class Config:
+class Config(BaseModel):
     laser: LaserConfig
     oscilloscope: OscilloscopeConfig
     measurement: MeasurementConfig
@@ -60,13 +56,7 @@ class Config:
 def load_config(path: str) -> Config:
     with open(path, 'rb') as f:
         raw = tomllib.load(f)
-
-    return Config(
-        laser=LaserConfig(**raw["laser"]),
-        oscilloscope=OscilloscopeConfig(**raw['oscilloscope']),
-        measurement=MeasurementConfig(**raw['measurement']),
-        photoreceiver=PhotorecieverConfig(**raw['photoreceiver'])
-    )
+    return Config(**raw)
 
 @dataclass
 class FileStructure:
